@@ -62,7 +62,13 @@ class Settings(BaseSettings):
     FIRST_ADMIN_NAME: str = "Celestra Admin"
 
     # --- CORS ---
-    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    BACKEND_CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://research-ai-frontend-eta.vercel.app",
+    ]
+    # Regex matching additional allowed origins (e.g. Vercel preview URLs).
+    BACKEND_CORS_ORIGIN_REGEX: str = r"https://.*\.vercel\.app"
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
