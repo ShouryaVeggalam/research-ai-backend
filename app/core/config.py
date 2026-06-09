@@ -80,7 +80,14 @@ class Settings(BaseSettings):
     @property
     def sqlalchemy_database_uri(self) -> str:
         if self.DATABASE_URL:
-            return self.DATABASE_URL
+            # Normalize provider-supplied URLs (Render/Heroku style) so that
+            # SQLAlchemy uses the psycopg2 driver explicitly.
+            url = self.DATABASE_URL
+            if url.startswith("postgres://"):
+                url = "postgresql+psycopg2://" + url[len("postgres://") :]
+            elif url.startswith("postgresql://"):
+                url = "postgresql+psycopg2://" + url[len("postgresql://") :]
+            return url
         return (
             f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

@@ -20,4 +20,5 @@ COPY . .
 EXPOSE 8000
 
 # Default command runs the API. Worker/beat override the command in compose.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# ${PORT} is injected by hosting platforms (e.g. Render); defaults to 8000 locally.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

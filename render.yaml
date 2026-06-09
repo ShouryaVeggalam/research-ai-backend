@@ -1,0 +1,49 @@
+# Render Blueprint for Celestra Research AI backend.
+# Deploy: Render Dashboard → New → Blueprint → connect this repo → Apply.
+# Provisions a free PostgreSQL database and a free web service for the API.
+
+databases:
+  - name: celestra-db
+    plan: free
+    databaseName: celestra_research
+    user: celestra
+
+services:
+  - type: web
+    name: celestra-research-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: celestra-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: LOG_JSON
+        value: "true"
+      - key: LLM_ENABLED
+        value: "false"
+      # Frontend origins allowed by CORS.
+      - key: BACKEND_CORS_ORIGINS
+        value: '["https://research-ai-frontend-eta.vercel.app"]'
+      - key: BACKEND_CORS_ORIGIN_REGEX
+        value: 'https://.*\.vercel\.app'
+      # Bootstrap admin (change the password after first login).
+      - key: FIRST_ADMIN_EMAIL
+        value: admin@celestra.ai
+      - key: FIRST_ADMIN_PASSWORD
+        generateValue: true
+      - key: FIRST_ADMIN_NAME
+        value: Celestra Admin

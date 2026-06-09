@@ -177,6 +177,30 @@ Tests use an isolated SQLite database and run with no external services.
 
 ---
 
+## Deploy to Render (free)
+
+This repo ships a [`render.yaml`](./render.yaml) blueprint that provisions a free
+PostgreSQL database and a free web service for the API.
+
+1. Push this repo to GitHub (already done).
+2. Go to the **Render Dashboard → New → Blueprint**.
+3. Connect the `research-ai-backend` repository and click **Apply**.
+4. Render builds the service and runs `alembic upgrade head` on boot, then starts
+   Uvicorn. The API will be live at `https://celestra-research-api.onrender.com`
+   (the exact host is shown in the dashboard).
+5. Verify: open `https://<your-host>/health` and `https://<your-host>/docs`.
+
+CORS is preconfigured to allow `https://research-ai-frontend-eta.vercel.app` and
+any `*.vercel.app` preview deployment. To allow more origins, edit the
+`BACKEND_CORS_ORIGINS` env var on the Render service.
+
+> Note: Render free web services spin down after ~15 min idle and cold-start on
+> the next request. Scheduled Celery jobs require a paid worker; the API and
+> on-demand agent runs work fully on the free tier without them.
+
+The bootstrap admin password is auto-generated — find it under the service's
+**Environment** tab (`FIRST_ADMIN_PASSWORD`).
+
 ## Configuration
 
 All configuration is environment-driven (see `.env.example`). Notable flags:
